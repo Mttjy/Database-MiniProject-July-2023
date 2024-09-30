@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <!-- Font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Deco -->
+    <link rel="stylesheet" type="text/css" href="/src/profile.css"> <!-- Deco -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script> <!-- Animations -->
+
+    <%- include('side-bar.ejs') %>
+</head>
+
+<body style="overflow: hidden; height: 100vh;">
+    <div class="card">
+        <div class="card-body d-flex" style="flex-direction: column">
+            <div class="back-btn-container">
+                <button type="button" class="btn-close" onclick=goBack() aria-label="Close"></button>
+            </div>
+            <h5 class="card-title pb-5">Profile Settings</h5>
+
+            <form onsubmit="return validateForm()" id="profile-form">
+                <div class="form-group">
+                    <label for="name" style="float: left">Author name:</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name"
+                        value="<%= author_name %>">
+                </div>
+                <div class="form-group">
+                    <label for="title" style="float: left; margin-top: 14px;">Blog Title:</label>
+                    <textarea class="form-control" id="title" name="title" rows="1"
+                        placeholder="Blog Title"><%= author_subTitle %></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="bio" style="float: left; margin-top: 14px;">Bio:</label>
+                    <textarea class="form-control" id="bio" name="bio" rows="6" placeholder="Enter your bio"
+                        style="font-size: 12px;"><%= author_desc %></textarea>
+                </div>
+                <button type="submit" class="save btn btn-block btn-outline-primary mt-4">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <script>
+
+        function goBack() {
+            window.location.href = "/author/home";
+        }
+
+        function validateForm() {
+            const nameInput = document.getElementById("name").value;
+            const titleInput = document.getElementById("title").value;
+            const bioInput = document.getElementById("bio").value;
+
+            if (!nameInput.trim()) {
+                alert("Please enter your name.");
+                return false;
+            }
+
+            if (!titleInput.trim()) {
+                alert("Please enter your Blog Title.");
+                return false;
+            }
+
+            if (!bioInput.trim()) {
+                alert("Please enter your bio.");
+                return false;
+            }
+
+            const formData = {
+                name: nameInput,
+                subTitle: titleInput,
+                desc: bioInput
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/author/update-profile", 
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    alert(response.message);
+                    window.location.href = "/author/edit";
+                },
+                error: function (error) {
+                    alert("Error updating profile: " + error.responseText);
+                }
+            });
+            return false;
+        }
+    </script>
+</body>
+
+</html>

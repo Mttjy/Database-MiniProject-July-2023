@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <!-- Font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Deco -->
+    <link rel="stylesheet" type="text/css" href="/src/styles.css"> <!-- Deco -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script> <!-- Animations -->
+
+    <%- include('side-bar.ejs') %>
+        <style>
+            a {
+                text-decoration: none;
+                color: #000;
+            }
+
+            a:hover {
+                color: #ffffff;
+                transform: scale(0.99);
+                transition: transform 0.3s ease;
+            }
+
+            .pCard:hover {
+                transform: scale(0.99);
+                background-color: #252525;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+        </style>
+</head>
+
+<body>
+    <div class="maincontent">
+        <div class="header">
+            <h2>
+                <%= author_subTitle %>
+            </h2>
+            <hr>
+            <p style="font-size: 16px">
+                Welcome <%= author_name %>!
+            </p>
+            <div class="header-content">
+                <h3>
+                    <a href="/reader/blog" class="btn btn-secondary back-button">Logout</a>
+                </h3>
+            </div>
+        </div>
+        <hr>
+
+        <div class="row">
+            <div class="leftcolumn">
+                <% if (publishedPost.length>= 0) { %>
+                    <% publishedPost.forEach(function (Posts) { %>
+                        <div class="card pCard" id="card_<%= Posts.post_id %>"
+                            onclick="showCardPopup('<%= Posts.post_id %>')">
+                            <div class="card-body">
+                                <h2>
+                                    <%= Posts.post_title %>
+                                </h2>
+                                <h5 class="post-subtitle">
+                                    <%= Posts.post_sub_title %> |
+                                        Likes: <%= Posts.likes %> | Comments: <%= Posts.comments %>
+                                                <div class="postedOn">Posted: <%= Posts.post_date %>
+                                                </div>
+                                </h5>
+                                <hr>
+                                <p>
+                                    <%= Posts.post_desc %>
+                                </p>
+                            </div>
+                        </div>
+                        <% }); %>
+                            <% } %>
+            </div>
+            <div class="rightcolumn">
+                <div class="card">
+                    <h2>
+                        <%= author_name %>
+                    </h2>
+                    <hr>
+                    <p>
+                        <%= author_desc %>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Popular Posts</h3>
+                    <hr>
+                    <% const popularPosts=publishedPost.sort((a, b)=> b.likes - a.likes);
+                        let count = 0;
+                        popularPosts.forEach(function (post) {
+                        if (post.likes > 0 && count < 3) { %>
+                            <a class="sCard" href="/author/post/<%= post.post_id %>">
+                                <h4>
+                                    <%= post.post_title %>
+                                </h4>
+                                <p>Likes: <%= post.likes %> | Comments: <%= post.comments %>
+                                </p>
+                                <hr>
+                                <% count++; } }); %>
+                            </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cardPopupModal" tabindex="-1" role="dialog" aria-labelledby="cardPopupModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cardPopupModalLabel">Post Actions</h5>
+                    <div class="back-btn-container">
+                        <button type="button" class="btn-close" onclick=goBack() aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p>What would you like to do with this post?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="copyLinkButton">Copy
+                        Link</button>
+                    <a class="btn btn-secondary" id="goToLinkButton">Go to Link</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = "/author/home";
+        }
+
+        function showCardPopup(postId) {
+            $('#cardPopupModal').modal('show');
+
+            //Copy the link of the card to the clipboard
+            document.getElementById('copyLinkButton').addEventListener('click', function () {
+                const cardLink = window.location.origin + '/reader/post/' + postId;
+                copyToClipboard(cardLink);
+                $('#cardPopupModal').modal('hide');
+                alert('Share link copied to clipboard: ' + window.location.origin + '/reader/post/' + postId);
+            });
+            document.getElementById('goToLinkButton').setAttribute('href', window.location.origin + '/author/post/' + postId);
+        }
+
+        function copyToClipboard(text) {
+            const textField = document.createElement('textarea');
+            textField.innerText = text;
+            document.body.appendChild(textField);
+            textField.select();
+            document.execCommand('copy');
+            textField.remove();
+        }
+    </script>
+
+</body>
+
+<%- include('footer.ejs') %>
+
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <!-- Font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Deco -->
+    <link rel="stylesheet" type="text/css" href="/src/styles.css"> <!-- Deco -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script> <!-- Animations -->
+
+    <style>
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        a:hover {
+            color: #ffffff;
+            transform: scale(0.99);
+            transition: transform 0.3s ease;
+        }
+
+        .pCard:hover {
+            transform: scale(0.99);
+            background-color: #252525;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="maincontent">
+        <div class="header">
+            <h2>
+                <%= author_subTitle %>
+            </h2>
+            <div class="header-content">
+                <h3>
+                    <a href="#" class="btn btn-secondary back-button" onclick="requestPasswordAndLogIn()">Author
+                        Login</a>
+                </h3>
+            </div>
+        </div>
+        <hr>
+
+        <div class="row">
+            <div class="leftcolumn">
+                <% if (publishedPost.length>= 0) { %>
+                    <% publishedPost.forEach(function(Posts) { %>
+                        <a href="/reader/post/<%= Posts.post_id %>">
+                            <div class="card pCard" id="card_<%= Posts.post_id %>">
+                                <div class="card-body">
+                                    <h2>
+                                        <%= Posts.post_title %>
+                                    </h2>
+                                    <h5 class="post-subtitle">
+                                        <%= Posts.post_sub_title %> |
+                                            Likes: <%= Posts.likes %> | Comments: <%= Posts.comments %>
+                                                    <div class="postedOn">Posted: <%= Posts.post_date %>
+                                                    </div>
+                                    </h5>
+                                    <hr>
+                                    <p>
+                                        <%= Posts.post_desc %>
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                        <% }); %>
+                            <% } %>
+            </div>
+            <div class="rightcolumn">
+                <div class="card">
+                    <h2>
+                        <%= author_name %>
+                    </h2>
+                    <hr>
+                    <p>
+                        <%= author_desc %>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Popular Posts</h3>
+                    <hr>
+                    <% const popularPosts=publishedPost.sort((a, b)=> b.likes - a.likes);
+                        let count = 0;
+                        popularPosts.forEach(function (post) {
+                        if (post.likes > 0 && count < 3) { %>
+                            <a class="sCard" href="/reader/post/<%= post.post_id %>">
+                                <h4>
+                                    <%= post.post_title %>
+                                </h4>
+                                <p>Likes: <%= post.likes %> | Comments: <%= post.comments %>
+                                </p>
+                                <hr>
+                                <% count++; } }); %>
+                            </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function requestPasswordAndLogIn() {
+            const enteredPassword = prompt("Please enter the password:");
+            // Check if the entered password matches "12345"
+            if (enteredPassword === "12345") {
+                window.location.href = "/author/home";
+            } else {
+                alert("Incorrect password.");
+            }
+        }
+    </script>
+
+</body>
+
+<%- include('footer.ejs') %>
+
+</html>

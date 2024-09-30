@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <!-- Font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Deco -->
+    <link rel="stylesheet" type="text/css" href="/src/styles.css"> <!-- Deco -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script> <!-- Animations -->
+
+    <style>
+        .fCard {
+            width: 100%;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background-color: var(--dim-grey);
+            color: white;
+            padding: 20px;
+            max-height: 380px;
+            overflow: auto;
+        }
+
+        .comment-card {
+            background-color: var(--dim-grey);
+            color: white;
+            padding: 20px;
+            max-height: 600px;
+            border-radius: 8px;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .comment-list {
+            max-height: 380px;
+            overflow: auto;
+        }
+
+        .comment-input {
+            flex: 1;
+            margin-right: 50px;
+            padding: 5px;
+        }
+
+        .comment-button {
+            background-color: var(--brown);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-right: 100px;
+            margin-left: -10px;
+            cursor: pointer;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="maincontent">
+        <div class="row">
+            <div class="card fCard" id="card_<%= post.post_id %>">
+                <div class="card-body">
+                    <h2>
+                        <%= post.post_title %> <a onclick=goBack() class="btn btn-secondary back-button">Back</a>
+                    </h2>
+                    <h5 class="post-subtitle">
+                        <%= post.post_sub_title %>
+                    </h5>
+                    <div class="postedOn">Posted: <%= post.post_date %>
+                    </div>
+                    <hr>
+                    <p>
+                        <%= post.post_desc %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="comment-card">
+                <div class="card-body">
+                    <h4>Likes: <span id="likesCount">
+                            <%= post.likes %>
+                        </span>
+                    </h4>
+                    <div class="row">
+                        <h4>Comments</h4>
+                        </div>
+                    </div>
+                    <hr>
+                    <% if (comments && comments.length> 0) { %>
+                        <div class="comment-list">
+                            <% comments.forEach(function(comment) { %>
+                                <div>
+                                    <p>
+                                        Anonymous (<span class="time-difference"
+                                            id="<%= comment.comment_id %>">Loading...</span>):<br>
+                                        <%= comment.comment_text %>
+                                    </p>
+                                </div>
+                                <hr>
+                                <% }); %>
+                        </div>
+                        <% } else { %>
+                            <p>No comments available.</p>
+                            <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const postId = '<%= post.post_id %>';
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function timeDifference(past) {
+            const msPerMinute = 60 * 1000;
+            const msPerHour = msPerMinute * 60;
+            const msPerDay = msPerHour * 24;
+            const msPerMonth = msPerDay * 30;
+            const msPerYear = msPerDay * 365;
+
+            const elapsed = new Date() - new Date(past);
+
+            if (elapsed < msPerMinute) {
+                return 'Just now';
+            } else if (elapsed < msPerHour) {
+                return Math.round(elapsed / msPerMinute) + ' minutes ago';
+            } else if (elapsed < msPerDay) {
+                return Math.round(elapsed / msPerHour) + ' hours ago';
+            } else if (elapsed < msPerMonth) {
+                return 'about ' + Math.round(elapsed / msPerDay) + ' days ago';
+            } else if (elapsed < msPerYear) {
+                return 'about ' + Math.round(elapsed / msPerMonth) + ' months ago';
+            } else {
+                return 'about ' + Math.round(elapsed / msPerYear) + ' years ago';
+            }
+        }
+
+        function updateRelativeTime() {
+            const comments = JSON.parse('<%- JSON.stringify(comments) %>');
+            comments.reverse();
+
+            comments.forEach((comment) => {
+                const commentContainer = document.getElementById(comment.comment_id);
+
+                // Calculate the new relative time and update the time element's content
+                const relativeTime = timeDifference(comment.comment_date);
+                commentContainer.textContent = relativeTime;
+
+            });
+        }
+        // Update relative time for comments initially
+        updateRelativeTime();
+
+        setInterval(updateRelativeTime, 30000);
+    </script>
+</body>
+<%- include('footer.ejs') %>
+
+</html>

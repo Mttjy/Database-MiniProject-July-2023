@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <!-- Font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Deco -->
+    <link rel="stylesheet" type="text/css" href="/src/styles.css"> <!-- Deco -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script> <!-- Animations -->
+
+    <%- include('side-bar.ejs') %>
+</head>
+
+<body>
+    <div class="maincontent">
+        <div class="header">
+            <h2 contenteditable="true">
+                <%= author_subTitle %>
+            </h2>
+            <hr>
+            <p style="font-size: 16px">
+                Welcome <%= author_name %>!
+            </p>
+            <div class="header-content">
+                <h3>
+                    <a href="/reader/blog" class="btn btn-secondary back-button">Logout</a>
+                </h3>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <strong><a href="/author/edit" class="square-button active">Published Posts</a></strong>
+            <strong><a href="/author/draft" class="square-button">Drafts</a></strong>
+        </div>
+        <hr>
+
+        <div class="row">
+            <div class="leftcolumn">
+                <% if(publishedPost.length>= 0) { %>
+                    <% publishedPost.forEach(function(Posts) { %>
+                        <div class="card pCard" id="card_<%= Posts.post_id %>">
+                            <div class="card-body">
+                                <h2>
+                                    <%= Posts.post_title %>
+                                </h2>
+                                <h5 class="post-subtitle">
+                                    <%= Posts.post_sub_title %> |
+                                        Likes: <%= Posts.likes %> | Comments: <%= Posts.comments %>
+                                                <div class="postedOn">Posted: <%= Posts.post_date %>
+                                                </div>
+                                </h5>
+                                <hr>
+                                <p>
+                                    <%= Posts.post_desc %>
+                                </p>
+                                <div class="edit-button-container">
+                                    <div class="last-updated">
+                                        Last-updated: <%= Posts.post_last_modified %>
+                                    </div>
+                                    <a href="/author/post/<%= Posts.post_id %>" class="edit-button">
+                                        <img width="28" height="28" src="https://img.icons8.com/ios/50/visible--v1.png"
+                                            alt="View Icon">
+                                    </a>
+                                    <button type="button" class="edit-button" data-toggle="modal"
+                                        data-target="#editModal_<%= Posts.post_id %>"
+                                        data-post-id="<%= Posts.post_id %>">
+                                        <img width="28" height="28"
+                                            src="https://img.icons8.com/pastel-glyph/64/edit-file--v1.png"
+                                            alt="Edit Icon">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-overlay"></div>
+                        <div class="modal fade" id="editModal_<%= Posts.post_id %>" tabindex="-1" role="dialog"
+                            aria-labelledby="editModalLabel_<%= Posts.post_id %>" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel_<%= Posts.post_id %>">Edit Post</h5>
+                                        <button type="button" class="del-button"
+                                            onclick="toggleDeleteConfirmation('<%= Posts.post_id %>')">
+                                            <strong>Delete</strong>
+                                        </button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="edit-form" id="editForm_<%= Posts.post_id %>">
+                                            <form id="editForm_<%= Posts.post_id %>">
+                                                <div class="form-group">
+                                                    <label for="editTitle_<%= Posts.post_id %>">Post Title</label>
+                                                    <input type="text" class="form-control"
+                                                        id="editTitle_<%= Posts.post_id %>"
+                                                        value="<%= Posts.post_title %>" required>
+                                                </div><br>
+                                                <div class="form-group">
+                                                    <label for="editSubTitle_<%= Posts.post_id %>">Post Sub
+                                                        Title</label>
+                                                    <input type="text" class="form-control"
+                                                        id="editSubTitle_<%= Posts.post_id %>"
+                                                        value="<%= Posts.post_sub_title %>" required>
+                                                </div><br>
+                                                <div class="form-group">
+                                                    <label for="editPostDesc_<%= Posts.post_id %>">Post
+                                                        Description</label>
+                                                    <textarea class="form-control"
+                                                        id="editPostDesc_<%= Posts.post_id %>" rows="4"
+                                                        required><%= Posts.post_desc %></textarea>
+                                                </div><br>
+                                                <div class="d-flex justify-content-end">
+                                                    <button type="button" class="btn btn-primary"
+                                                        onclick="saveEditedPost('<%= Posts.post_id %>')">
+                                                        <strong>Save</strong>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="deleteConfirmationModal_<%= Posts.post_id %>" tabindex="-1"
+                            role="dialog" aria-labelledby="deleteConfirmationModalLabel_<%= Posts.post_id %>"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteConfirmationModalLabel_<%= Posts.post_id %>">
+                                            Delete Post</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete this post?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-danger"
+                                            onclick="deletePost('<%= Posts.post_id %>')">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% }); %>
+                            <% } %>
+            </div>
+            <div class="rightcolumn">
+                <div class="card">
+                    <h2>
+                        <%= author_name %>
+                    </h2>
+                    <hr>
+                    <p>
+                        <%= author_desc %>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Popular Posts</h3>
+                    <hr>
+                    <% const popularPosts=publishedPost.sort((a, b)=> b.likes - a.likes);
+                        let count = 0;
+                        popularPosts.forEach(function (post) {
+                        if (post.likes > 0 && count < 3) { %>
+                            <a class="sCard text-decoration-none" href="/author/post/<%= post.post_id %>">
+                                <h4>
+                                    <%= post.post_title %>
+                                </h4>
+                                <p>Likes: <%= post.likes %> | Comments: <%= post.comments %>
+                                </p>
+                                <hr>
+                                <% count++; } }); %>
+                            </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/src/scripts.js"></script>
+
+</body>
+
+<%- include('footer.ejs') %>
+
+</html>
